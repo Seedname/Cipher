@@ -1,49 +1,6 @@
 import random
 
-def seedEncrypt(string, key):
-    random.seed(key)
-    
-    encrypted = ""
-    alphabet = "abcdefghijklmnopqrstuvwxyz "
-    length = len(alphabet)
-    for i in range(len(string)):
-        num = int(random.random()*length)
-        encrypted += alphabet[(alphabet.index(string[i]) + key*num) % length]
-
-    return encrypted
-def seedDecrypt(string, key):
-    random.seed(key)
-
-    decrypted = ""
-    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^&*()_+{}|:\"<>?[]\;',./`~ "
-    alphabet = "abcdefghijklmnopqrstuvwxyz "
-    length = len(alphabet)
-    for i in range(len(string)):
-        num = int(random.random() *length) 
-        b = alphabet.index(string[i])
-        x = num*key
-        m = length
-        num = m+b-x
-        sc = int(num/length)
-        decrypted += alphabet[m+b-x-length*sc]
-
-    return decrypted
-
-def caesar(string, shift, encrypted):
-    returned = ""
-    alphabet = "abcdefghijklmnopqrstuvwxyz"
-    for i in range(len(string)):
-        try:
-            b = alphabet.index((string[i]).lower())
-            if encrypted:
-                returned += alphabet[(b+shift) % 26]
-            else:
-                returned += alphabet[(b-shift) % 26]
-        except:
-            returned += " "
-
-    return returned
-def playfair(string, key, encrpyt):
+def playfair(string, key, encrpyted):
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     final_key = ""
 
@@ -67,7 +24,7 @@ def playfair(string, key, encrpyt):
     h = len(table)
     w = len(table[0])
 
-    shift = int(encrpyt == True) 
+    shift = int(encrpyted == True) 
     for k in range(len(key)):
         i = int(k/w)
         j = k % h
@@ -129,11 +86,11 @@ def playfair(string, key, encrpyt):
     return returned.strip()
 def vignere(string, key, encrypted):
     alphabet = "abcdefghijklmnopqrstuvwxyz"
-
+    key = key.replace(" ", "")
     returned = ""
     for i in range(len(string)):
         try:
-            col = alphabet.index(key[i % len(key)])
+            col = alphabet.index(key[i % len(key)].lower())
             row = alphabet.index(string[i].lower())
 
             if encrypted:
@@ -144,6 +101,44 @@ def vignere(string, key, encrypted):
             returned += " "
 
     return returned
+def caesar(string, shift, encrypted):
+    returned = ""
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    for i in range(len(string)):
+        try:
+            b = alphabet.index((string[i]).lower())
+            if encrypted:
+                returned += alphabet[(b+shift) % 26]
+            else:
+                returned += alphabet[(b-shift) % 26]
+        except:
+            returned += " "
+
+    return returned
+def seed(string, key, encrypted):
+    random.seed(key)
+
+    returned = ""
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    length = len(alphabet)
+    for i in range(len(string)):
+        try:
+            num = int(random.random() *length) 
+            if encrypted:
+                returned += alphabet[(alphabet.index(string[i].lower()) + key*num) % length]
+            else:            
+                b = alphabet.index(string[i].lower())
+                x = num*key
+                m = length
+                num = m+b-x
+                sc = int(num/length)
+                returned += alphabet[m+b-x-length*sc]
+        except:
+            returned += " "
+
+    return returned
+def rot13(string):
+    return caesar(string, 13, True)
 def atbash(string):
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     first = alphabet[0:13]
@@ -162,26 +157,36 @@ def atbash(string):
             returned += " "
     return returned
 
-message = "this is a cool test"
-key = "heytasdf"
-cipher = "playfair"
+ciphers = [playfair, vignere, caesar, seed, rot13, atbash]
+while True:
+    try:
+        string = "\nWhich cipher would you like to use?\n"
+        for i in range(len(ciphers)):
+            string += str(i) + ". " + ciphers[i].__name__ + "\n"
 
-if cipher == 'caesar':
-    encrypted = caesar(message, key, True)
-    print("Encrypted: " + encrypted)
-    print("Decrypted: " + caesar(encrypted, key, False))
-elif cipher == 'playfair':
-    encrypted = playfair(message, key, True)
-    print("Encrypted: " + encrypted)
-    print("Decrypted: " + playfair(encrypted, key, False))
-elif cipher == 'vignere':
-    encrypted = vignere(message, key, True)
-    print("Encrypted: " + encrypted)
-    print("Decrypted: " + vignere(encrypted, key, False))
-elif cipher == 'atbash':
-    encrypted = atbash(message)
-    print("Encrypted: " + encrypted)
-    print("Decrypted: " + atbash(message))
+        try:
+            cipher = ciphers[int(input(string))]
+        except:
+            print("\nPlease input an integer(0-" + str(len(ciphers)) + ")\n")
+            continue
 
 
+        message = str(input("\nWhat is your message?\n"))
+        
+        if cipher == rot13 or cipher == atbash:
+            print("\nMessage: " + cipher(message) + "\n\n")
+        else:
+            encrypt = str(input("\nWould you like to encrypt or decrypt? (e/d)\n"))[0] == "e"
+            if cipher == playfair or cipher == vignere:
+                key = str(input("\nWhat is your key?\n"))
+                print("\nMessage: " + cipher(message, key, encrypt) + "\n\n")
+            if cipher == caesar or cipher == seed:
+                key = int(input("\nWhat is your key?\n"))
+                print("\nMessage: " + cipher(message, key, encrypt) + "\n\n")
+    
+
+        if str(input("Generate more ciphertext? (y/n)\n"))[0] == 'y': continue
+        break
+    except:
+        print("\nPlease enter valid values.")
 
