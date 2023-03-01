@@ -162,7 +162,7 @@ def atbash(string):
             returned += " "
     return returned
 
-message = "this is a cool test"
+message = "this is a cool cipher"
 key = "heytasdf"
 cipher = "playfair"
 
