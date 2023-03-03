@@ -115,6 +115,7 @@ def caesar(string, shift, encrypted):
             returned += " "
 
     return returned
+
 def seed(string, key, encrypted):
     random.seed(key)
 
